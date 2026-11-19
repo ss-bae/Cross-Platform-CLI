@@ -1,0 +1,9 @@
+# Dependencies (installed with npm install)
+node_modules/
+
+# OS clutter
+.DS_Store
+
+# Local-only: reference material and build notes, not part of the published project
+*.pdf
+tasks/
