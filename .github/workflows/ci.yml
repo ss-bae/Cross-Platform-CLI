@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,9 +17,35 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - name: Unit tests (answer checker, question bank, flash cards)
+      - name: Unit tests (answer checker, content, web app files)
         run: npm test
       - name: Browser tests (headless Chrome)
         run: npm run test:e2e
         env:
           CHROME_PATH: /usr/bin/google-chrome
+
+  # Publishes the app to GitHub Pages after the tests pass on main.
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect the files the app serves (no tests, docs, or tooling)
+        run: |
+          mkdir _site
+          cp -r index.html manifest.webmanifest sw.js css js data icons _site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

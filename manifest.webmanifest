@@ -1,0 +1,20 @@
+{
+  "name": "Cross-Platform CLI Practice Game",
+  "short_name": "CLI Practice",
+  "description": "Learn Windows, Linux, and macOS command-line tools by typing them into a simulated terminal.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#11141a",
+  "theme_color": "#11141a",
+  "categories": ["education", "games", "developer"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Guided demo", "url": "./?demo", "description": "Take the one-minute guided tour" }
+  ]
+}

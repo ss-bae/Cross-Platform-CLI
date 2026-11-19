@@ -7,8 +7,8 @@
 
   const BANK = window.QUESTION_BANK;
   const Checker = window.Checker;
+  const APP = window.APP;
 
-  const STORAGE_KEY = 'cli-practice-game-v1';
   const LEGACY_KEY = 'aplus-cli-trainer-v1'; // read once so earlier progress carries over
   const OSES = ['windows', 'linux', 'macos'];
 
@@ -98,8 +98,7 @@
   }
 
   function loadState() {
-    let saved = null;
-    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY)); } catch (e) { saved = null; }
+    const saved = APP.read(APP.KEYS.game, LEGACY_KEY);
     const state = { mode: 'windows', view: 'practice', os: {} };
     if (saved && OSES.includes(saved.mode)) state.mode = saved.mode;
     if (saved && saved.view === 'learn') state.view = 'learn';
@@ -115,10 +114,7 @@
   }
 
   function saveState() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      localStorage.removeItem(LEGACY_KEY);
-    } catch (e) { /* storage unavailable */ }
+    APP.write(APP.KEYS.game, state, LEGACY_KEY);
   }
 
   const state = loadState();
@@ -134,7 +130,7 @@
     hintBtn: $('hint-btn'), nextBtn: $('next-btn'), pointsNote: $('points-note'),
     hintPanel: $('hint-panel'), hintNudge: $('hint-nudge'), hintChoices: $('hint-choices'),
     progressOs: $('progress-os'), progressSummary: $('progress-summary'), strengthList: $('strength-list'),
-    resetBtn: $('reset-btn'), skipBtn: $('skip-btn'), qReview: $('q-review'), laterSummary: $('later-summary'),
+    resetBtn: $('reset-btn'), skipBtn: $('skip-btn'), showMeBtn: $('showme-btn'), qReview: $('q-review'), laterSummary: $('later-summary'),
   };
 
   function makeSpan(text, cls) {
@@ -391,6 +387,7 @@
     const a = prog().attempt;
     el.nextBtn.hidden = !a.solved;
     el.skipBtn.hidden = a.solved;
+    el.showMeBtn.hidden = !APP.demo || a.solved;
     el.hintBtn.hidden = a.solved || a.wrong === 0 || a.hinted;
     el.hintPanel.hidden = a.solved || !a.hinted;
     const pts = pointsFor(a);
@@ -611,6 +608,45 @@
     focusInput();
   }
 
+  // Types text into the terminal one character at a time, then submits it.
+  // Used by the demo tour and the demo-only "Show me" button.
+  let autoTyping = false;
+  function autoType(text, delay = 45) {
+    if (autoTyping) return Promise.resolve(false);
+    autoTyping = true;
+    el.input.value = '';
+    renderTyped();
+    return new Promise((resolve) => {
+      let i = 0;
+      const step = () => {
+        if (i < text.length) {
+          el.input.value += text[i++];
+          el.input.setSelectionRange(el.input.value.length, el.input.value.length);
+          renderTyped();
+          setTimeout(step, delay);
+          return;
+        }
+        setTimeout(() => {
+          autoTyping = false;
+          submit(el.input.value);
+          resolve(true);
+        }, 250);
+      };
+      step();
+    });
+  }
+
+  // Demo mode: type the answer for visitors who don't know the command. Scored as a hint.
+  function showMe() {
+    const a = prog().attempt;
+    if (a.solved || autoTyping) return Promise.resolve(false);
+    if (!a.hinted) {
+      a.hinted = true;
+      a.choices = buildChoices(byId[a.id]);
+    }
+    return autoType(byId[a.id].answers[0]);
+  }
+
   function switchMode(os) {
     if (!OSES.includes(os) || os === state.mode) { focusInput(); return; }
     state.mode = os;
@@ -719,6 +755,7 @@
   el.hintBtn.addEventListener('click', openHint);
   el.nextBtn.addEventListener('click', nextQuestion);
   el.skipBtn.addEventListener('click', skipQuestion);
+  el.showMeBtn.addEventListener('click', () => { showMe(); focusInput(); });
   el.resetBtn.addEventListener('click', resetMode);
   for (const b of document.querySelectorAll('.modes button')) {
     b.addEventListener('click', () => switchMode(b.dataset.mode));
@@ -740,6 +777,21 @@
     get mode() { return state.mode; },
     get view() { return state.view; },
     OS_META,
+    // Used by the demo tour (js/demo.js).
+    switchMode,
+    switchView,
+    openHint,
+    showMe,
+    next: nextQuestion,
+    focus: focusInput,
+    typeAnswer: autoType,
+    question: () => byId[prog().current],
+    showQuestion(id) {
+      const q = byId[id];
+      if (!q) return;
+      if (q.os !== state.mode) switchMode(q.os);
+      startQuestion(q);
+    },
   };
   announce();
 

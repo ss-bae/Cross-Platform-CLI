@@ -65,6 +65,19 @@ const OUT = path.join(__dirname, '..', 'docs', 'screenshots');
   await page.evaluate(() => [...document.querySelectorAll('.game-card')].find((c) => c.textContent.includes('Output Detective')).querySelector('button').click());
   await shot('learn-detective');
 
+  // Demo tour: step 6, the auto-typed correct answer.
+  await page.goto(page.url().split('?')[0] + '?demo');
+  await page.evaluate(() => sessionStorage.clear());
+  await page.reload();
+  await sleep(800);
+  for (let i = 2; i <= 6; i++) {
+    await page.click('.tour-next');
+    await sleep(60);
+    while (await page.evaluate(() => window.DemoTour.busy)) await sleep(100);
+  }
+  await sleep(700);
+  await shot('demo-tour');
+
   await browser.close();
   console.log('Screenshots written to docs/screenshots/');
 })();

@@ -11,7 +11,7 @@
   const Checker = window.Checker;
   const Trainer = window.Trainer;
 
-  const STORAGE_KEY = 'cli-practice-learn-v1';
+  const APP = window.APP;
   const LEGACY_KEY = 'aplus-cli-learn-v1'; // read once so earlier progress carries over
   const OSES = ['windows', 'linux', 'macos'];
   const TABS = ['guided', 'cards', 'games'];
@@ -50,8 +50,7 @@
   }
 
   function load() {
-    let saved = null;
-    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY)); } catch (e) { saved = null; }
+    const saved = APP.read(APP.KEYS.learn, LEGACY_KEY);
     const s = { tab: 'guided', os: {} };
     if (saved && TABS.includes(saved.tab)) s.tab = saved.tab;
     for (const os of OSES) s.os[os] = Object.assign(blankProgress(), saved && saved.os && saved.os[os]);
@@ -59,10 +58,7 @@
   }
 
   function save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-      localStorage.removeItem(LEGACY_KEY);
-    } catch (e) { /* storage unavailable */ }
+    APP.write(APP.KEYS.learn, store, LEGACY_KEY);
   }
 
   const store = load();
@@ -841,6 +837,18 @@
 
   // ---------- Boot ----------
   render();
+
+  // Used by the demo tour (js/demo.js).
+  window.Learn = {
+    setTab(tab) {
+      if (!TABS.includes(tab)) return;
+      store.tab = tab;
+      ui.lesson = null;
+      closeGame();
+      save();
+      render();
+    },
+  };
 
   // Exposed for automated play-testing.
   window.__learn = { store, ui, decks, lessons, detectivePool, toSym };

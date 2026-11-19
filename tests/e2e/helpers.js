@@ -20,7 +20,8 @@ function chromePath() {
 }
 
 // Opens the game with empty storage. Dialogs (reset confirmations) are accepted.
-async function openGame({ width = 1280, height = 900 } = {}) {
+// query is appended to the URL (e.g. '?demo'); url replaces it entirely (e.g. an http:// server).
+async function openGame({ width = 1280, height = 900, query = '', url = GAME_URL } = {}) {
   const browser = await puppeteer.launch({ executablePath: chromePath(), headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage();
   const errors = [];
@@ -28,8 +29,8 @@ async function openGame({ width = 1280, height = 900 } = {}) {
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('dialog', (d) => d.accept());
   await page.setViewport({ width, height });
-  await page.goto(GAME_URL);
-  await page.evaluate(() => localStorage.clear());
+  await page.goto(url + query);
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
   await page.reload();
   return { browser, page, errors };
 }
@@ -78,4 +79,4 @@ const helpers = (page) => ({
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-module.exports = { openGame, suite, helpers, sleep, GAME_URL };
+module.exports = { openGame, suite, helpers, sleep, chromePath, GAME_URL };

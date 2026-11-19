@@ -553,3 +553,40 @@ body[data-view="learn"] .stats { display: none; }
   .card-meaning { font-size: 17px; }
   .steps { margin-left: 0; }
 }
+
+/* ---------- Demo mode ---------- */
+.btn-small { padding: 4px 10px; font-size: 13px; text-decoration: none; display: inline-block; }
+.demo-banner { display: none; }
+[data-demo] .demo-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
+  padding: 8px 24px; font-size: 13px; background: color-mix(in srgb, var(--warn) 16%, var(--page-bg));
+  border-bottom: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); color: var(--text);
+}
+.demo-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+[data-demo] .tour-link { display: none; }
+.tour-link { color: var(--text); }
+
+.tour-layer { position: fixed; inset: 0; z-index: 1000; }
+.tour-layer[hidden] { display: none; }
+body.touring [id], body.touring .modes, body.touring .progress, body.touring .lesson-grid, body.touring .game-grid, body.touring .question-card { scroll-margin-top: 12px; }
+.tour-spot {
+  position: fixed; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 0 3px var(--accent), 0 0 0 9999px rgba(4, 7, 13, .66);
+  transition: top .3s ease, left .3s ease, width .3s ease, height .3s ease;
+}
+.tour-pop {
+  position: fixed; width: min(380px, calc(100vw - 32px)); z-index: 1001;
+  background: var(--panel-bg); color: var(--text); border: 1px solid var(--panel-border);
+  border-radius: 12px; padding: 16px 18px; box-shadow: 0 16px 40px #000a;
+}
+.tour-pop.center { top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(460px, calc(100vw - 32px)); }
+.tour-pop.docked { left: 16px; right: 16px; bottom: 16px; width: auto; }
+.tour-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tour-title { margin: 2px 0 6px; font-size: 18px; }
+.tour-body { margin: 0 0 14px; font-size: 14.5px; line-height: 1.5; }
+.tour-row { display: flex; justify-content: space-between; align-items: center; }
+.tour-layer.working .tour-next { opacity: .6; cursor: progress; }
+
+@media (max-width: 640px) {
+  [data-demo] .demo-banner { padding: 8px 16px; }
+}

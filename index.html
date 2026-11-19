@@ -9,10 +9,20 @@
   <meta property="og:title" content="Cross-Platform CLI Practice Game">
   <meta property="og:description" content="A browser terminal game for learning Windows, Linux, and macOS command-line tools.">
   <meta property="og:type" content="website">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2311141a'/%3E%3Ctext x='10' y='44' font-family='monospace' font-size='34' font-weight='700' fill='%234c8dff'%3E%3E_%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-os="windows">
+  <div class="demo-banner" role="region" aria-label="Demo mode">
+    <span><strong>Demo mode</strong> · sample progress, resets when you close this tab</span>
+    <span class="demo-actions">
+      <button id="demo-replay" class="btn btn-small">Replay tour</button>
+      <button id="demo-reset" class="btn btn-small">Reset demo</button>
+      <a id="demo-exit" class="btn btn-small" href="./">Exit demo</a>
+    </span>
+  </div>
+
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark">&gt;_</span>
@@ -32,6 +42,8 @@
       <button role="tab" data-mode="linux">Linux</button>
       <button role="tab" data-mode="macos">macOS</button>
     </nav>
+
+    <a class="btn btn-small tour-link" href="?demo">Take the tour</a>
 
     <div class="stats" aria-live="polite">
       <div class="stat"><span class="stat-label">Score</span><span id="score" class="stat-value">0</span></div>
@@ -68,6 +80,7 @@
 
       <div class="actions">
         <button id="hint-btn" class="btn" hidden>Hint</button>
+        <button id="showme-btn" class="btn" hidden title="Types the answer for you. Scored like a hint.">Show me</button>
         <button id="skip-btn" class="btn" title="Skip for now. It comes back for review in a few questions.">Skip &#x21B7;</button>
         <button id="next-btn" class="btn btn-primary" hidden>Next &#x25B8;</button>
         <span id="points-note" class="points-note"></span>
@@ -114,7 +127,9 @@
   <script src="data/questions.js"></script>
   <script src="js/checker.js"></script>
   <script src="data/learn.js"></script>
+  <script src="js/app.js"></script>
   <script src="js/game.js"></script>
   <script src="js/learn.js"></script>
+  <script src="js/demo.js"></script>
 </body>
 </html>
